@@ -1,0 +1,13 @@
+---
+###############
+# Point stage_dir to a different locatiom. By default, it will reside in the current directory.
+##############
+stage_dir: "{{ lookup('env', 'PWD') }}/stage_dir"
+
+gocam_solr_host: REPLACE_ME
+gocam_solr_host_alias: '{{ gocam_solr_host }}'
+
+REDIRECT_HTTP: 0
+redirect_to: '{{ gocam_solr_host }}'
+
+USE_CLOUDFLARE: 0
