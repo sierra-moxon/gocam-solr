@@ -2,23 +2,23 @@ version: '3.7'
 services:
 
   fastapi:
-    hostname: fastapi 
-    container_name: fastapi  
+    hostname: gocam_solr
+    container_name: gocam_solr
     volumes:
       - {{ stage_dir }}/conf/config.yaml:/code/app/conf/config.yaml
-    image: 'geneontology/go-fastapi:{{ fastapi_tag }}'
+    image: 'geneontology/gocam-solr:{{ gocam_solr_tag }}'
     init: true
     restart: unless-stopped
     healthcheck:
-      test: curl http://fastapi:8080 || exit 1
+      test: curl http://gocam_solr:8983 || exit 1
       interval: 60s
       retries: 5
       timeout: 10s
       start_period: 20s
 
   apache_proxy:
-    hostname: apache_fastapi
-    container_name: apache_fastapi
+    hostname: apache_gocam_solr
+    container_name: apache_gocam_solr
     image: {{ apache_proxy_image }}
     volumes:
       - {{ stage_dir }}/httpd-confs:/etc/apache2/sites-enabled
@@ -28,8 +28,9 @@ services:
       - {{ stage_dir }}/credentials:/opt/credentials
       - {{ stage_dir }}/credentials/s3cfg:/root/.aws/config
     ports:
-      - "80:80"
+      - "83:83"
       - "443:443"
+      - "8983:8983"
     environment:
       - S3_PATH={{ S3_PATH }}/fastapi
       - S3_BUCKET={{ S3_BUCKET }}
@@ -39,5 +40,5 @@ services:
     init: true
     restart: unless-stopped
     depends_on:
-      - fastapi 
+      - gocam_solr
 
