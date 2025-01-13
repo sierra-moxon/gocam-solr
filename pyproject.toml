@@ -10,6 +10,10 @@ readme = "README.md"
 python = "^3.9"
 click = "*"
 importlib-metadata = ">=8.2.0"
+linkml = "^1.8.6"
+linkml-store = "^0.2.2"
+linkml-runtime = "^1.8.3"
+gocam = "^0.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = {version = ">=8.3.2"}
