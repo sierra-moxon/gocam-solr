@@ -15,7 +15,7 @@ CONTAINER_NAME := $(NAME)
 
 include docker.Makefile
 
-.PHONY: install
+PHONY: install
 install:
 	@echo "Creating Python virtual environment and installing dependencies..."
 	@$(PYTHON) -m venv $(VENV_DIR)

@@ -1,46 +1,44 @@
 # Base Image
-FROM ubuntu:22.04 as builder
+FROM ubuntu:22.04
 
 # Set environment variables
-ENV PYTHONFAULTHANDLER=1 \
-  PYTHONUNBUFFERED=1 \
-  PYTHONHASHSEED=random \
-  PIP_NO_CACHE_DIR=off \
-  PIP_DISABLE_PIP_VERSION_CHECK=on \
-  PIP_DEFAULT_TIMEOUT=100 \
-  POETRY_VERSION=1.3.2 \
-  DEBIAN_FRONTEND=noninteractive \
-  SOLR_CORE_NAME=gocam-solr \
-  SOLR_HOME=/var/solr/data
+ENV SOLR_VERSION=8.11.2 \
+    SOLR_HOME=/var/solr \
+    SOLR_DATA_HOME=/var/solr/data \
+    SOLR_USER=solr \
+    SOLR_GROUP=solr
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    python3-pip \
-    python3 \
-    python3-venv \
-    nano \
-    make \
     openjdk-11-jre-headless \
     wget \
-    lsof
+    lsof \
+    curl \
+    unzip \
+    procps \
+    ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN python3 -m pip install "poetry==$POETRY_VERSION"
-RUN poetry self add "poetry-dynamic-versioning[plugin]"
+# Create Solr user and group
+RUN groupadd -r $SOLR_GROUP && useradd -r -g $SOLR_GROUP -s /bin/bash -d /var/solr $SOLR_USER
 
-# Install Solr
-RUN wget https://archive.apache.org/dist/lucene/solr/8.11.2/solr-8.11.2.tgz && \
-    tar xzf solr-8.11.2.tgz && \
-    mv solr-8.11.2 /opt/solr && \
-    rm solr-8.11.2.tgz
+# Download and install Solr
+WORKDIR /tmp
+RUN wget https://archive.apache.org/dist/lucene/solr/${SOLR_VERSION}/solr-${SOLR_VERSION}.tgz && \
+    tar xzf solr-${SOLR_VERSION}.tgz && \
+    mv solr-${SOLR_VERSION} /opt/solr && \
+    rm solr-${SOLR_VERSION}.tgz
 
-# Create Solr home directory, logs directory, and set permissions
-RUN mkdir -p /var/solr/data /opt/solr/server/logs && \
-    cp /opt/solr/server/solr/solr.xml /var/solr/data/ && \
-    chown -R 8983:8983 /var/solr /opt/solr
+# Set up Solr home directory and copy default solr.xml
+RUN mkdir -p $SOLR_HOME/data && \
+    cp /opt/solr/server/solr/solr.xml $SOLR_HOME/ && \
+    cp -r /opt/solr/server/solr/configsets/_default $SOLR_HOME/data/gocam-solr && \
+    chown -R $SOLR_USER:$SOLR_GROUP /opt/solr /var/solr
 
-USER 8983
-# Default command to keep Solr running in the foreground
+# Expose Solr port
+EXPOSE 8983
+
+# Switch to Solr user
+USER $SOLR_USER
+
 CMD ["/opt/solr/bin/solr", "start", "-f"]
