@@ -38,4 +38,3 @@ restart:
 	@echo "Restarting Docker container..."
 	make stop
 	make start
-
