@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="example" version="1.6">
+  <uniqueKey>id</uniqueKey>
+
+  <!-- Field types -->
+  <types>
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" />
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory" />
+        <filter class="solr.LowerCaseFilterFactory" />
+      </analyzer>
+    </fieldType>
+  </types>
+
+  <!-- Fields -->
+  <fields>
+    <field name="id" type="string" indexed="true" stored="true" required="true" />
+    <field name="title" type="text_general" indexed="true" stored="true" />
+    <field name="content" type="text_general" indexed="true" stored="true" />
+    <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true" />
+  </fields>
+
+  <!-- Dynamic fields -->
+  <dynamicField name="*_s" type="string" indexed="true" stored="true" />
+  <dynamicField name="*_txt" type="text_general" indexed="true" stored="true" multiValued="true" />
+</schema>
