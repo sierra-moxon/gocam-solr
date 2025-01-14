@@ -8,7 +8,7 @@ docker-run:
 	@echo "Starting Docker container..."
 	docker run -d -p 8983:8983 \
 		--name $(CONTAINER_NAME) \
-		-v $(PWD)/gocam-solr/conf:/var/solr/data/gocam-solr/conf \
+		-v $(PWD)/conf:/var/solr/data/gocam-solr/conf \
 		$(IMAGE_NAME)
 	@sleep 5 # Allow Solr to fully start
 	@echo "Creating Solr core if it doesn't already exist..."

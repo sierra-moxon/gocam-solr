@@ -41,5 +41,6 @@ RUN mkdir -p /var/solr/data /opt/solr/server/logs && \
     cp /opt/solr/server/solr/solr.xml /var/solr/data/ && \
     chown -R 8983:8983 /var/solr /opt/solr
 
+USER 8983
 # Default command to keep Solr running in the foreground
 CMD ["/opt/solr/bin/solr", "start", "-f"]
