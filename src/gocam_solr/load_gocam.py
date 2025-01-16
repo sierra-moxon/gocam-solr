@@ -89,26 +89,23 @@ def process_resources(metadata_path, client):
     temp_dir = os.path.join('/tmp', 'gocam_json_files')
     os.makedirs(temp_dir, exist_ok=True)
     print(f"Using temporary directory: {temp_dir}")
+    client.create_collection("models", recreate_if_exists=True)
     for resource_url, resource_ids in metadata.items():
         print(resource_url)
         counter = 0
         base_url = "https://live-go-cam.geneontology.io/product/json/low-level/"
         for resource_id in resource_ids:
-            if not resource_id.startswith("62"):
-            # if not resource_id[0].isdigit() and :
-                continue
-            else:
-                try:
-                    if counter > 50:
-                        break
-                    else:
-                        counter += 1
-                        # Download and store the JSON file for each ID
-                        data = download_resource_file(resource_id, base_url)
-                        store_file_in_temp(data, resource_id, temp_dir)
-                        load_model(os.path.join(temp_dir, f"{resource_id}.json"), client)
-                except RuntimeError as e:
-                    print(e)
+            try:
+                if counter > 50 or not resource_id[0].isdigit():
+                    break
+                else:
+                    counter += 1
+                    # Download and store the JSON file for each ID
+                    data = download_resource_file(resource_id, base_url)
+                    store_file_in_temp(data, resource_id, temp_dir)
+                    load_model(os.path.join(temp_dir, f"{resource_id}.json"), client)
+            except RuntimeError as e:
+                print(e)
     """Main function to process resources and store them in a temporary folder."""
     # Parse the metadata file
 
