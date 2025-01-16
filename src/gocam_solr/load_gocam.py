@@ -26,7 +26,7 @@ def load_model(model_file, db_client, collection="models"):
     else:
         collection = db_client.get_collection(collection)
     if model_file.endswith(".json"):
-        with open(model_file), 'r' as f:
+        with open(model_file, 'r') as f:  # Corrected parentheses
             model = json.load(f)
             collection.insert(model)
 
@@ -63,6 +63,15 @@ def download_resource_file(resource_id,
 
 def store_file_in_temp(data, resource_id, temp_dir):
     """Store the downloaded JSON data in a temporary folder."""
+
+    # Define the file path (modify as needed)
+    file_path = os.path.join(temp_dir, f"{resource_id}.json")
+
+    # Skip if the file already exists
+    if os.path.exists(file_path):
+        print(f"Skipping resource_id: {resource_id} (file already exists: {file_path})")
+        return
+
     try:
         file_path = os.path.join(temp_dir, f"{resource_id}.json")
         with open(file_path, 'w') as file:
@@ -81,63 +90,27 @@ def process_resources(metadata_path, client):
     os.makedirs(temp_dir, exist_ok=True)
     print(f"Using temporary directory: {temp_dir}")
     for resource_url, resource_ids in metadata.items():
+        print(resource_url)
+        counter = 0
         base_url = "https://live-go-cam.geneontology.io/product/json/low-level/"
         for resource_id in resource_ids:
-            try:
-                # Download and store the JSON file for each ID
-                data = download_resource_file(resource_id, base_url)
-                store_file_in_temp(data, resource_id, temp_dir)
-                load_model(os.path.join(temp_dir, f"{resource_id}.json"), client)
-            except RuntimeError as e:
-                print(e)
-    """Main function to process resources and store them in a temporary folder."""
-    # Parse the metadata file
-    metadata = parse_metadata_file(metadata_path)
-
-    # Create a temporary directory
-    with tempfile.TemporaryDirectory() as temp_dir:
-        print(f"Using temporary directory: {temp_dir}")
-
-        for resource_url, resource_ids in metadata.items():
-            base_url = resource_url.strip('/') + "/"
-
-            for resource_id in resource_ids:
-                try:
-                    # Download and store the JSON file for each ID
-                    data = download_resource_file(resource_id, base_url)
-                    store_file_in_temp(data, resource_id, temp_dir)
-                except RuntimeError as e:
-                    print(e)
-
-    """Main function to process resources and store them in a temporary folder."""
-    # Parse the metadata file
-    metadata = parse_metadata_file(metadata_path)
-
-    # Extract resources and IDs
-    resources = metadata.get("resources", {})
-    if not resources:
-        raise ValueError("No resources found in metadata file.")
-
-    # Create a temporary directory
-    with tempfile.TemporaryDirectory() as temp_dir:
-        print(f"Using temporary directory: {temp_dir}")
-
-        for resource_name, resource_data in resources.items():
-            ids = resource_data.get("ids", [])
-            if not ids:
-                print(f"No IDs found for resource {resource_name}.")
+            if not resource_id.startswith("62"):
+            # if not resource_id[0].isdigit() and :
                 continue
-
-            for resource_id in ids:
-                print(resource_id)
-                if resource_id.startswith("MGI") or resource_id.startswith("ZFIN"):
-                    continue
+            else:
                 try:
-                    # Download and store the JSON file for each ID
-                    data = download_resource_file(resource_id)
-                    store_file_in_temp(data, resource_id, temp_dir)
+                    if counter > 50:
+                        break
+                    else:
+                        counter += 1
+                        # Download and store the JSON file for each ID
+                        data = download_resource_file(resource_id, base_url)
+                        store_file_in_temp(data, resource_id, temp_dir)
+                        load_model(os.path.join(temp_dir, f"{resource_id}.json"), client)
                 except RuntimeError as e:
                     print(e)
+    """Main function to process resources and store them in a temporary folder."""
+    # Parse the metadata file
 
 if __name__ == "__main__":
     # URL to download the metadata file
