@@ -15,6 +15,12 @@ linkml-store = "^0.2.2"
 linkml-runtime = "^1.8.3"
 gocam = "^0.2.0"
 linkml-solr = "^0.1.6"
+tiktoken = "^0.8.0"
+tabulate = "^0.9.0"
+onnxruntime = "1.19.2"
+chromadb = "^0.6.3"
+pymongo = "^4.10.1"
+neo4j = "^5.27.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = {version = ">=8.3.2"}

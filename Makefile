@@ -14,6 +14,7 @@ IMAGE_NAME := $(NAME)
 CONTAINER_NAME := $(NAME)
 
 include docker.Makefile
+include docker.Mongodb.Makefile
 
 PHONY: install
 install:
