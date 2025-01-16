@@ -1,7 +1,6 @@
 import os
 import json
 import requests
-import tempfile
 from linkml_store import Client
 
 def create_store_client():
@@ -106,8 +105,7 @@ def process_resources(metadata_path, client):
                     load_model(os.path.join(temp_dir, f"{resource_id}.json"), client)
             except RuntimeError as e:
                 print(e)
-    """Main function to process resources and store them in a temporary folder."""
-    # Parse the metadata file
+
 
 if __name__ == "__main__":
     # URL to download the metadata file
@@ -119,10 +117,15 @@ if __name__ == "__main__":
     # Download the metadata file
     download_metadata_file(metadata_url, metadata_file_path)
 
-    # Create a LinkML store client
+    # Create a LinkML store clientx
     client = create_store_client()
 
     # Process the resources using the downloaded metadata
     process_resources(metadata_file_path, client)
     # load_models("/tmp/gocam_json_files", client)
+
+    collection = client.get_collection("models")
+    fc = collection.query_facets()
+
+
 
